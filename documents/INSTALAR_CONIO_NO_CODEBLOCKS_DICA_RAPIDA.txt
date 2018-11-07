@@ -1,0 +1,27 @@
+Na sua maquina onde você tem senha de administrador: 
+
+1) Baixe o arquivo conio.zip
+
+2) Instalar ou Reinstalar o CodeBlocks com a opção devpak plugin marcada dentro de contrib plugins.
+
+3) Copiar o conteúdo das pastas lib e include de dentro do arquivo ZIP para as respectivas pastas em C:\Arquivos de Programas\CodeBlocks\MinGW
+
+4) No Codeblocks, vá em Settings >> Compiler and Debugger >> Linker Settings. 
+
+5) Adicionar uma Link Library com o caminho:
+C:\Arquivos de programas\CodeBlocks\MinGW\lib\libconio.a
+
+
+
+No laboratorio de aulas praticas os arquivos da conio2 estão instalados em C:\devlibs\devpaks\.
+
+Para utilizá-los, entretanto, é necessário incluir paths no projeto no codeblocks.
+
+Entrar em Settings -> Compiler -> Search directories.
+
+Em "Compiler", clicar em Add e adicionar o diretório C:\dev-libs\devpaks\include\
+Em "Linker", clicar em Add e adicionar o diretório C:\dev-libs\devpaks\lib\
+Adicionar uma Link Library com o caminho:
+C:\Arquivos de programas\CodeBlocks\MinGW\lib\libconio.a
+Essas confgurações podem ser desfeitas por outros usuários, portanto é recomendável realizá-las manualmente se o commpilador acusar a falta das bibliotecas conio
+.
