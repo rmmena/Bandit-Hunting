@@ -12,13 +12,14 @@
 #define MAX_BANDIDOS 3
 #define MAX_ESPECIAIS 5
 
-// ESTRUTURAS
+// ------------------------ ESTRUTURAS -----------------------
 
 typedef struct coordenada
 {
     int coordenadax;
     int coordenaday;
 } COORDENADA;
+// -----------------------------------
 
 typedef struct jogador
 {
@@ -26,6 +27,7 @@ typedef struct jogador
     COORDENADA posicao_xerife;
     int velocidade;
 } JOGADOR;
+// ----------------------------------
 
 typedef struct bandido
 {
@@ -33,6 +35,7 @@ typedef struct bandido
     int na_cadeia;
     int velocidade;
 } BANDIDO;
+// --------------------------------
 
 typedef struct especial
 {
@@ -40,6 +43,21 @@ typedef struct especial
     int status;
     int velocidade;
 } ESPECIAL;
+
+
+// ----------------------------- CHAMADA DOS SUBPROGRAMAS -----------------------
+
+void desenhacenario();
+void desenhajogador(JOGADOR xerife);
+void desenhabandido (BANDIDO bandido[]);
+void desenharochas(COORDENADA rochas[]);
+void desenhainfosjogador(JOGADOR xerife, BANDIDO bandido[], int mododejogo);
+void resetacor();
+void apagaelemento(int x, int y);
+void movimentajogador(JOGADOR *xerife, COORDENADA desloc, COORDENADA rochas[]);
+
+
+// ------------------------------ FUNCAO PRINCIPAL DO JOGO ----------------------
 
 int main()
 {
@@ -55,5 +73,140 @@ int main()
     xerife.posicao_xerife.coordenadax = 30;
     xerife.posicao_xerife.coordenaday = 13;
 
+    int mododejogo;
+
+    desenhacenario();
+    desenhajogador(xerife);
+    desenhabandido(bandidos);
+    desenharochas(rochas);
+    //desenhainfosjogador(xerife, bandidos, mododejogo); // COM PROBLEMAS
+    movimentajogador(&xerife, desloc, rochas);
+
+
+
+
 
 }
+
+// --------------------------------------- CENARIO DO JOGO -------------------------------------------------
+
+void desenhacenario()
+{
+    int contalinha, contacoluna;
+
+    for (contalinha = 1; contalinha <= LINHA; contalinha++)
+    {
+        for (contacoluna = 1; contacoluna <= COLUNA; contacoluna++)
+            if (contalinha == 1 || contalinha == LINHA)
+            {
+                textbackground(BLUE);
+                putchxy(contacoluna, contalinha, '*');
+            }
+
+            else
+            {
+                textbackground(BLUE);
+                putchxy(1, contalinha, '*');
+                putchxy(COLUNA, contalinha, '*');
+            }
+    }
+}
+
+// ----------------------------------------------------------------------------------------
+
+void desenhajogador(JOGADOR xerife)
+{
+    textbackground(YELLOW);
+    putchxy(xerife.posicao_xerife.coordenadax, xerife.posicao_xerife.coordenaday, 'X');
+}
+
+// ----------------------------------------------------------------------------------------
+
+void desenhabandido(BANDIDO bandido[])
+{
+    int i;
+
+    for(i=0; i<MAX_BANDIDOS; i++)
+    {
+        textbackground(GREEN);
+        putchxy(bandido[i].posicao_bandido.coordenadax, bandido[i].posicao_bandido.coordenaday, 'B');
+    }
+}
+
+// ----------------------------------------------------------------------------------------
+
+void desenharochas(COORDENADA rochas[])
+{
+    int i;
+    for (i = 0; i < NUM_ROCHAS; i++)
+    {
+        textbackground(WHITE);
+        putchxy(rochas[i].coordenadax, rochas[i].coordenaday, ' ');
+    }
+}
+
+void desenhaespeciais(ESPECIAL especial[]) // A FAZER
+{
+
+}
+
+// -------------------------------------------------------------------------------------
+
+/* DESENHA INFO JOGADOR
+void desenhainfosjogador(JOGADOR xerife, BANDIDO bandido[], int mododejogo) // PROBLEMAS: COMO EU CHAMO O BANDIDO NA FUNCAO
+{
+    int contador;
+
+    textbackground(BLACK);
+    cputsxy(1,LINHA + 1,"Nome: ");
+    puts(xerife.nome);
+
+
+    if (mododejogo == 0)
+    {
+        cputsxy(20,LINHA + 1,"Modo de jogo: ");
+        printf("Facil");
+    }
+
+    if (mododejogo == 1)
+    {
+        cputsxy(20,LINHA + 1,"Modo de jogo: ");
+        printf("Dificil");
+    }
+
+    cputsxy(47,LINHA + 1,"Cadeia: ");
+    for(contador = 0; contador < bandido[contador].na_cadeia; contador++)
+    {
+        printf("B");
+    }
+
+}
+
+*/
+
+// ------------------------ MOVIMENTACAO ------------------------------------------
+
+void resetacor()
+{
+    textbackground(BLACK);
+    textcolor(WHITE);
+}
+// -----------------------------------------------------------------------------------------------------
+
+void apagaelemento(int x, int y)
+{
+    resetacor();
+    putchxy(x, y, ' ');
+}
+// -----------------------------------------------------------------------------------------------------
+
+void movimentajogador(JOGADOR *xerife, COORDENADA desloc, COORDENADA rochas[])
+{
+
+    apagaelemento((*xerife).posicao_xerife.coordenadax, (*xerife).posicao_xerife.coordenaday);
+    (*xerife).posicao_xerife.coordenadax += desloc.coordenadax;
+    (*xerife).posicao_xerife.coordenaday += desloc.coordenaday;
+    textbackground(YELLOW);
+    putchxy((*xerife).posicao_xerife.coordenadax, (*xerife).posicao_xerife.coordenaday, 'X');
+}
+// ---------------------------------------------------------------------------------------------------
