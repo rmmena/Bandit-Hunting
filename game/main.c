@@ -12,6 +12,10 @@
 #define MAX_BANDIDOS 3
 #define MAX_ESPECIAIS 5
 
+// CRIAR VARIAVEL LOOP
+
+// posicao_bandidox = 2+ rand() * (LINHA - 2) / RAND_MAX e POSICAO = 2+ rand() * (COLUNA - 2) / RAND_MAX
+
 // ------------------------ ESTRUTURAS -----------------------
 
 typedef struct coordenada
@@ -23,7 +27,7 @@ typedef struct coordenada
 
 typedef struct jogador
 {
-    char* nome[TAMSTRING];
+    char nome[TAMSTRING];
     COORDENADA posicao_xerife;
     int velocidade;
 } JOGADOR;
@@ -44,18 +48,31 @@ typedef struct especial
     int velocidade;
 } ESPECIAL;
 
+// --------------------------------
+
+typedef struct jogo
+{
+    JOGADOR salvaxerife;
+    COORDENADA salvarochas[NUM_ROCHAS];
+    ESPECIAL salvaespeciais[MAX_ESPECIAIS];
+    BANDIDO salvabandidos[MAX_BANDIDOS];
+} JOGO;
 
 // ----------------------------- CHAMADA DOS SUBPROGRAMAS -----------------------
 
 void desenhacenario();
 void desenhajogador(JOGADOR xerife);
-void desenhabandido (int bandido_x, int bandido_y);
+void desenhabandido (BANDIDO bandido[]);
 void desenharochas(COORDENADA rochas[]);
 void resetacor();
 void apagaelemento(int x, int y);
 void movimentajogador(JOGADOR *xerife, COORDENADA desloc, COORDENADA rochas[]);
 void desenhainfotempo(clock_t clock_inicial);
-
+void desenhaespeciais(ESPECIAL especial[]);
+void desenhainfosjogador(JOGADOR xerife, int bandidosnacadeia, int mododejogo);
+void desenhamenu();
+int salvajogo(JOGO jogo);
+int carregajogo(JOGO *jogo, char nome_jogador[]);
 
 // ------------------------------ FUNCAO PRINCIPAL DO JOGO ----------------------
 
@@ -68,6 +85,7 @@ int main()
     COORDENADA rochas[NUM_ROCHAS] = {{10, 10}, {20, 20}, {15, 15}};
     BANDIDO bandidos[MAX_BANDIDOS] = {{5, 5}, {16,21}, {12, 17}};
     ESPECIAL especiais[MAX_ESPECIAIS] = {{3,3}, {11,12}, {3,6}, {6,7}, {8,9}};
+    JOGO jogo;
 
     // Inicializacao das variaveis
     clock_t clock_inicial;
@@ -77,14 +95,74 @@ int main()
     xerife.posicao_xerife.coordenaday = 13;
 
     int mododejogo;
-    clock_inicial = clock();
     int parar = 0;
+    int bandidosnacadeia = 0;
+    int opcao;
 
-    desenhacenario();
-    desenhajogador(xerife);
-    desenharochas(rochas);
+    desenhamenu();
+    printf("\n\n");
+    scanf("%d", &opcao);
 
-    // Laco principal
+    switch(opcao)
+    {
+    case 1:
+    {
+        clrscr();
+        printf("Insira o nome do jogador: ");
+        scanf("%s", xerife.nome);
+        printf("\n");
+        printf("Insira o modo de jogo: 0 - Facil, 1 - Dificil: ");
+        scanf("%d", &mododejogo);
+        printf("\n");
+        clrscr();
+        desenhacenario();
+        desenhajogador(xerife);
+        desenharochas(rochas);
+        desenhabandido(bandidos);
+        desenhaespeciais(especiais);
+        desenhainfosjogador(xerife, bandidosnacadeia, mododejogo);
+        clock_inicial = clock();
+    }
+    break;
+
+    case 2:
+    {
+
+    }
+    break;
+
+    case 3:
+    {
+
+    }
+    break;
+
+    case 4:
+    {
+
+    }
+    break;
+
+    case 5:
+    {
+
+    }
+    break;
+
+    case 6:
+    {
+
+    }
+    break;
+
+    default:
+    {
+        printf("\nOpcao invalida!");
+    }
+
+    }
+
+    // ----------------------------------- Laco principal -------------------------------------------
 
     while (parar != 1)
     {
@@ -157,21 +235,87 @@ int main()
 
 // ------------------------------------- FUNCOES DE ARQUIVO --------------------------------------------------------------------
 
+int salvajogo(JOGO jogo) // A FAZER
+{
+    FILE *arq;
+    JOGADOR xerife;
+
+    if(arq = fopen("game.dat", "ab"))
+    {
+        if (!strcmp(jogo.salvaxerife.nome, xerife.nome))
+        {
+            fwrite(&xerife, sizeof(JOGADOR), 1, arq);
+            return 1;
+
+            // ESCREVER DADOS NO JOGO
+        }
+
+        else
+        {
+            fwrite(&jogo, sizeof(JOGO), 1, arq);
+            return 1;
+        }
+    }
+
+    else
+    {
+        printf("\nErro na abertura do arquivo");
+        return 0;
+    }
+
+    fclose(arq);
+}
+
+int carregajogo(JOGO *jogo, char nome_jogador[]) // A FAZER
+{
+    FILE *arq;
+    JOGADOR xerife;
+    int achou = 0;
+
+    printf("Insira um nome para ser buscado: ");
+    scanf("%s", nome_jogador);
+
+    if(arq = fopen("game.dat", "rb"))
+    {
+        while(!feof(arq) && achou != 1)
+        {
+            fread(&jogo, sizeof(JOGO), 1, arq);
+
+            if(!strcmp(nome_jogador, xerife.nome))
+            {
+                // TODOS OS VALORES RECEBERÃO OS QUE ESTÃO NOS DO JOGO
+                return 1;
+            }
+
+            else
+            {
+                printf("\nNome nao encontrado!\n");
+            }
+        }
 
 
+    }
 
+    else
+    {
+        printf("\nErro na abertura do arquivo");
+    }
 
-
-
+    fclose(arq);
+}
 
 // -------------------------------------------------- MENU ---------------------------------------------------------------------
 
-
-
-
-
-
-
+void desenhamenu() // A FAZER
+{
+    printf("Bandit Hunter \n\n");
+    printf("1 - Novo Jogo: Facil \n\n");
+    printf("2 - Novo Jogo: Modo Corrupcao Brasil \n\n");
+    printf("3 - Carregar Partida \n\n");
+    printf("4 - Ajuda \n\n");
+    printf("5 - Ranking \n\n");
+    printf("6 - Sair \n\n");
+}
 
 // --------------------------------------- CENARIO DO JOGO -------------------------------------------------
 
@@ -207,11 +351,14 @@ void desenhajogador(JOGADOR xerife)
 
 // ----------------------------------------------------------------------------------------
 
-void desenhabandido (int bandido_x, int bandido_y) // PROBLEMA: FAZER COMO O DESENHA ROCHAS
+void desenhabandido(BANDIDO bandido[])
 {
-    textbackground(GREEN);
-    putchxy(bandido_x, bandido_y, 'B');
-
+    int i;
+    for (i = 0; i < MAX_BANDIDOS; i++)
+    {
+        textbackground(RED);
+        putchxy(bandido[i].posicao_bandido.coordenadax, bandido[i].posicao_bandido.coordenaday, 'B');
+    }
 }
 
 // ----------------------------------------------------------------------------------------
@@ -222,24 +369,30 @@ void desenharochas(COORDENADA rochas[])
     for (i = 0; i < NUM_ROCHAS; i++)
     {
         textbackground(WHITE);
-        putchxy(rochas[i].coordenadax, rochas[i].coordenaday, ' ');
+        putchxy(rochas[i].coordenadax, rochas[i].coordenaday, 'R');
     }
 }
+// --------------------------------------------------------------------------------------------
 
-void desenhaespeciais(ESPECIAL especial[]) // A FAZER
+void desenhaespeciais(ESPECIAL especial[])
 {
-
+    int i;
+    for (i = 0; i < MAX_BANDIDOS; i++)
+    {
+        textbackground(BLUE);
+        putchxy(especial[i].posicao_especial.coordenadax, especial[i].posicao_especial.coordenaday, 'E');
+    }
 }
 
 // -------------------------------------------------------------------------------------
 
-void desenhainfosjogador(JOGADOR xerife, int bandidosnacadeia, int mododejogo) // PROBLEMA: CHAMAR CORRETAMENTE O NOME DO XERIFE
+void desenhainfosjogador(JOGADOR xerife, int bandidosnacadeia, int mododejogo)
 {
     int contador;
 
     textbackground(BLACK);
     cputsxy(1,LINHA + 1,"Nome: ");
-    puts(xerife.nome);
+    printf("%s", xerife.nome);
 
 
     if (mododejogo == 0)
@@ -263,7 +416,7 @@ void desenhainfosjogador(JOGADOR xerife, int bandidosnacadeia, int mododejogo) /
 }
 // -------------------------------------------------------------------------------------
 
-void desenhainfotempo(clock_t clock_inicial) // PROBLEMA: a cada vez que o jogador se movimenta a cor de fundo do tempo se modifica e fica igual ao do xerife
+void desenhainfotempo(clock_t clock_inicial)
 {
     int segundos, minutos;
 
@@ -274,18 +427,14 @@ void desenhainfotempo(clock_t clock_inicial) // PROBLEMA: a cada vez que o jogad
     minutos = segundos/ 60;
 
     segundos = segundos%60;
-
+    textbackground(GREEN);
     gotoxy(65, LINHA+1);
     printf("%02d : %02d", 2 - minutos, 59 - segundos);
 
 }
 
 
-
-
-
-
-// ------------------------ MOVIMENTACAO ------------------------------------------
+// ------------------------ MOVIMENTACAO ---------------------------------------------------------------------------------------
 
 void resetacor()
 {
@@ -317,10 +466,6 @@ void movimentabandido(BANDIDO *bandido[], COORDENADA desloc, COORDENADA rochas[]
 
 }
 
-
-
-
-
 // ----------------------- TESTES ------------------------------------------------------------------------------------------------
 
 int testaproximidade(COORDENADA coordA, COORDENADA coordB)
@@ -340,6 +485,7 @@ int testaproximidade(COORDENADA coordA, COORDENADA coordB)
 }
 // ------------------------------------------------------------------------------------------------------
 
+/*
 int testacaptura(JOGADOR xerife, BANDIDO *bandido, int *bandidos_na_cadeia)
 {
     int raio = 2;
@@ -362,30 +508,27 @@ int testacaptura(JOGADOR xerife, BANDIDO *bandido, int *bandidos_na_cadeia)
         return (*bandido).na_cadeia;
     }
 }
+*/
+
 // --------------------------------------------------------------------------------------------------------
 
-int testacolisaojogador(JOGADOR *xerife, COORDENADA desloc, COORDENADA rochas[]) // PROBLEMA: se colocar ela em todas as direcoes de movimento, o jogador fica travado, se colocar em uma so, assim que chegar perto da rocha, ele nao deixa mais se movimentar para aquele lado
+int testacolisaojogador(JOGADOR *xerife, COORDENADA desloc, COORDENADA rochas[])
 {
     int i;
     int colidiu = 0;
 
     for (i = 0; i < NUM_ROCHAS; i++)
     {
-        // Testa Colisao
         if (((*xerife).posicao_xerife.coordenadax + desloc.coordenadax == rochas[i].coordenadax) && ((*xerife).posicao_xerife.coordenadax + desloc.coordenaday == rochas[i].coordenadax))
         {
 
             colidiu = 1;
-            return colidiu;
-        }
 
-        else
-        {
-            colidiu = 0;
-            return colidiu;
         }
 
     }
+
+    return colidiu;
 }
 
 // ----------------------------------------------------------------------------------------------
@@ -401,12 +544,7 @@ int testacapturaespecial(JOGADOR xerife, ESPECIAL especial[]) // A FAZER
 
 }
 
-
-
-
-
-
-// -------------------------------------- ESPECIAIS -------------------------------------------
+// -------------------------------------- ESPECIAIS --------------------------------------------------------------------------------
 
 void alteravelocidade(JOGADOR *xerife, int aceleracao)
 {
