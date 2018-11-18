@@ -8,7 +8,7 @@
 #define LINHA 24
 #define COLUNA 80
 #define TAMSTRING 10
-#define NUM_ROCHAS 3
+#define NUM_ROCHAS 15
 #define MAX_BANDIDOS 3
 #define MAX_ESPECIAIS 5
 
@@ -73,37 +73,42 @@ void desenhainfosjogador(JOGADOR xerife, int bandidosnacadeia, int mododejogo);
 void desenhamenu();
 int salvajogo(JOGO jogo);
 int carregajogo(JOGO *jogo, char nome_jogador[]);
+int testacolisaojogador(JOGADOR xerife, COORDENADA desloc, COORDENADA rochas[]);
+void inicializa_rochas(COORDENADA rochas[], int* num_rochas, int max_rochas);
 
 // ------------------------------ FUNCAO PRINCIPAL DO JOGO ----------------------
 
 int main()
 {
+    // Inicializacao das variaveis
+    clock_t clock_inicial;
+    int mododejogo;
+    int parar = 0;
+    int bandidosnacadeia = 0;
+    int opcao;
+    int maxrochas = 15;
+    int numrochas = 0;
+
+
     // Inicializacao das estruturas
 
     COORDENADA desloc;
     JOGADOR xerife;
-    COORDENADA rochas[NUM_ROCHAS] = {{10, 10}, {20, 20}, {15, 15}};
-    BANDIDO bandidos[MAX_BANDIDOS] = {{5, 5}, {16,21}, {12, 17}};
-    ESPECIAL especiais[MAX_ESPECIAIS] = {{3,3}, {11,12}, {3,6}, {6,7}, {8,9}};
+    COORDENADA rochas[maxrochas];
+    BANDIDO bandidos[MAX_BANDIDOS];
+    ESPECIAL especiais[MAX_ESPECIAIS];
     JOGO jogo;
-
-    // Inicializacao das variaveis
-    clock_t clock_inicial;
 
     // Posicao inicial do xerife no jogo
     xerife.posicao_xerife.coordenadax = 30;
     xerife.posicao_xerife.coordenaday = 13;
 
-    int mododejogo;
-    int parar = 0;
-    int bandidosnacadeia = 0;
-    int opcao;
 
     desenhamenu();
     printf("\n\n");
     scanf("%d", &opcao);
 
-    switch(opcao)
+    switch(opcao) // A FAZER
     {
     case 1:
     {
@@ -117,9 +122,10 @@ int main()
         clrscr();
         desenhacenario();
         desenhajogador(xerife);
+        inicializa_rochas(rochas, &numrochas, maxrochas);
         desenharochas(rochas);
-        desenhabandido(bandidos);
-        desenhaespeciais(especiais);
+        //desenhabandido(bandidos);
+        //desenhaespeciais(especiais);
         desenhainfosjogador(xerife, bandidosnacadeia, mododejogo);
         clock_inicial = clock();
     }
@@ -167,6 +173,8 @@ int main()
     while (parar != 1)
     {
         desenhainfotempo(clock_inicial);
+        desloc.coordenadax = 0;
+        desloc.coordenaday = 0;
 
         if (GetKeyState (VK_RIGHT) & 0x80) // Seta para direita pressionada
         {
@@ -174,8 +182,12 @@ int main()
             {
                 desloc.coordenadax = 1;
                 desloc.coordenaday = 0;
+                if (!testacolisaojogador(xerife, desloc, rochas))
+                {
 
-                movimentajogador(&xerife, desloc, rochas);
+                    movimentajogador(&xerife, desloc, rochas);
+                }
+
             }
 
         }
@@ -188,7 +200,12 @@ int main()
                 desloc.coordenadax = -1;
                 desloc.coordenaday = 0;
 
-                movimentajogador(&xerife, desloc, rochas);
+                if (!testacolisaojogador(xerife, desloc, rochas))
+                {
+
+                    movimentajogador(&xerife, desloc, rochas);
+                }
+
 
             }
         }
@@ -199,8 +216,11 @@ int main()
             {
                 desloc.coordenadax = 0;
                 desloc.coordenaday = -1;
+                if (!testacolisaojogador(xerife, desloc, rochas))
+                {
+                    movimentajogador(&xerife, desloc, rochas);
+                }
 
-                movimentajogador(&xerife, desloc, rochas);
 
             }
 
@@ -213,8 +233,13 @@ int main()
             {
                 desloc.coordenadax = 0;
                 desloc.coordenaday = 1;
+                if (!testacolisaojogador(xerife, desloc, rochas))
+                {
 
-                movimentajogador(&xerife, desloc, rochas);
+                    movimentajogador(&xerife, desloc, rochas);
+                }
+
+
 
             }
 
@@ -304,6 +329,11 @@ int carregajogo(JOGO *jogo, char nome_jogador[]) // A FAZER
     fclose(arq);
 }
 
+// SALVA PONTUACAO E NOME
+
+// CARREGA PONTUACAO E NOME
+
+
 // -------------------------------------------------- MENU ---------------------------------------------------------------------
 
 void desenhamenu() // A FAZER
@@ -316,6 +346,8 @@ void desenhamenu() // A FAZER
     printf("5 - Ranking \n\n");
     printf("6 - Sair \n\n");
 }
+
+// DESENHA MENU PAUSA
 
 // --------------------------------------- CENARIO DO JOGO -------------------------------------------------
 
@@ -433,6 +465,35 @@ void desenhainfotempo(clock_t clock_inicial)
 
 }
 
+void inicializa_rochas(COORDENADA rochas[], int* num_rochas, int max_rochas)
+{
+    int contador = 0;
+
+    FILE *arq = fopen("rochas.txt", "r");
+    if(arq != NULL)
+
+    {
+        while(!feof(arq))
+        {
+            while (contador != max_rochas)
+            {
+                fscanf(arq, "(%d,%d)\n", &(rochas[contador].coordenadax), &(rochas[contador].coordenaday));
+                contador++;
+            }
+        }
+
+    }
+
+    else
+    {
+        printf("Erro na abertura do arquivo");
+    }
+
+    fclose(arq);
+
+    *(num_rochas) = contador;
+}
+
 
 // ------------------------ MOVIMENTACAO ---------------------------------------------------------------------------------------
 
@@ -501,7 +562,7 @@ int testacaptura(JOGADOR xerife, BANDIDO *bandido, int *bandidos_na_cadeia)
         return (*bandido).na_cadeia;
     }
 
-    else
+    else USA UM FOR NO LAÇO PRINCIPAL E REFAZ A FUNCAO PARA PEGAR AS COORDENADAS
     {
         desenhabandido((*bandido).posicao_bandido.coordenadax, (*bandido).posicao_bandido.coordenaday);
         (*bandido).na_cadeia = 0;
@@ -512,14 +573,15 @@ int testacaptura(JOGADOR xerife, BANDIDO *bandido, int *bandidos_na_cadeia)
 
 // --------------------------------------------------------------------------------------------------------
 
-int testacolisaojogador(JOGADOR *xerife, COORDENADA desloc, COORDENADA rochas[])
+int testacolisaojogador(JOGADOR xerife, COORDENADA desloc, COORDENADA rochas[])
 {
     int i;
     int colidiu = 0;
+    int max_rochas = 15;
 
-    for (i = 0; i < NUM_ROCHAS; i++)
+    for (i = 0; i < max_rochas; i++)
     {
-        if (((*xerife).posicao_xerife.coordenadax + desloc.coordenadax == rochas[i].coordenadax) && ((*xerife).posicao_xerife.coordenadax + desloc.coordenaday == rochas[i].coordenadax))
+        if ((xerife.posicao_xerife.coordenadax + desloc.coordenadax == rochas[i].coordenadax) && xerife.posicao_xerife.coordenaday + desloc.coordenaday == rochas[i].coordenaday)
         {
 
             colidiu = 1;
