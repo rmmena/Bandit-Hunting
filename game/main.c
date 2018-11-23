@@ -87,7 +87,7 @@ int main()
     int parar = 0;
     int bandidosnacadeia = 0;
     int opcao;
-    int maxrochas = 15;
+    int maxrochas = 30;
     int numrochas = 0;
     int maxbandidos = 10;
     int numbandidos = 0;
@@ -108,22 +108,27 @@ int main()
 
 
     desenhamenu();
-    printf("\n\n");
-    scanf("%d", &opcao);
+
+    while (opcao < 1 || opcao > 6)
+    {
+        printf("\n\n Insira sua opcao e vamos comecar: ");
+        scanf("%d", &opcao);
+    }
+
 
     switch(opcao) // A FAZER
     {
     case 1:
     {
+        maxbandidos = 5;
+        maxrochas = 15;
         clrscr();
+        mododejogo = 0;
         printf("Insira o nome do jogador: ");
         scanf("%s", xerife.nome);
         printf("\n");
-        printf("Insira o modo de jogo: 0 - Facil, 1 - Dificil: ");
-        scanf("%d", &mododejogo);
         printf("\n");
         clrscr();
-        maxrochas = 15;
         desenhacenario();
         desenhajogador(xerife);
         inicializa_rochas(rochas, &numrochas, maxrochas);
@@ -137,7 +142,21 @@ int main()
 
     case 2:
     {
-
+        clrscr();
+        mododejogo = 1;
+        printf("Insira o nome do jogador: ");
+        scanf("%s", xerife.nome);
+        printf("\n");
+        printf("\n");
+        clrscr();
+        desenhacenario();
+        desenhajogador(xerife);
+        inicializa_rochas(rochas, &numrochas, maxrochas);
+        desenharochas(rochas, numrochas);
+        inicializa_bandidos(bandidos, &numbandidos, maxbandidos);
+        desenhabandido(bandidos, numbandidos);
+        desenhainfosjogador(xerife, bandidosnacadeia, mododejogo);
+        clock_inicial = clock();
     }
     break;
 
@@ -188,7 +207,6 @@ int main()
                 desloc.coordenaday = 0;
                 if (!testacolisaojogador(xerife, desloc, rochas, maxrochas))
                 {
-
                     movimentajogador(&xerife, desloc);
                 }
 
@@ -369,7 +387,7 @@ void desenhamenu() // A FAZER
 {
     printf("Bandit Hunter \n\n");
     printf("1 - Novo Jogo: Facil \n\n");
-    printf("2 - Novo Jogo: Modo Corrupcao Brasil \n\n");
+    printf("2 - Novo Jogo: Dificil \n\n");
     printf("3 - Carregar Partida \n\n");
     printf("4 - Ajuda \n\n");
     printf("5 - Ranking \n\n");
@@ -473,7 +491,6 @@ int testacolisaojogador(JOGADOR xerife, COORDENADA desloc, COORDENADA rochas[], 
 
 
 
-
 // ------------------------------------- ROCHAS -------------------------------------------------------------
 
 void desenharochas(COORDENADA rochas[], int num_rochas)
@@ -495,13 +512,10 @@ void inicializa_rochas(COORDENADA rochas[], int* num_rochas, int max_rochas)
     if(arq != NULL)
 
     {
-        while(!feof(arq))
+        while (contador != max_rochas)
         {
-            while (contador != max_rochas)
-            {
-                fscanf(arq, "(%d,%d)\n", &(rochas[contador].coordenadax), &(rochas[contador].coordenaday));
-                contador++;
-            }
+            fscanf(arq, "(%d,%d)\n", &(rochas[contador].coordenadax), &(rochas[contador].coordenaday));
+            contador++;
         }
 
     }
@@ -534,7 +548,7 @@ void desenhabandido(BANDIDO bandido[], int num_bandidos)
 
 // -------------------------------------------------------------------------------
 
-void movimentabandido(BANDIDO *bandido[], COORDENADA desloc) // A FAZER - DÚVIDA
+void movimentabandido(BANDIDO *bandido[], COORDENADA desloc) // A FAZER
 {
 
 }
@@ -549,14 +563,13 @@ void inicializa_bandidos(BANDIDO bandido[], int* num_bandidos, int max_bandidos)
     if(arq != NULL)
 
     {
-        while(!feof(arq))
+
+        while (contador != max_bandidos)
         {
-            while (contador != max_bandidos)
-            {
-                fscanf(arq, "(%d,%d)\n", &(bandido[contador].posicao_bandido.coordenadax), &(bandido[contador].posicao_bandido.coordenaday));
-                contador++;
-            }
+            fscanf(arq, "(%d,%d)\n", &(bandido[contador].posicao_bandido.coordenadax), &(bandido[contador].posicao_bandido.coordenaday));
+            contador++;
         }
+
 
     }
 
@@ -580,16 +593,13 @@ int testacolisaobandido(BANDIDO bandido[], COORDENADA desloc, COORDENADA rochas[
     {
         for(j = 0; j < max_bandidos; j++)
         {
+
+
             if ((bandido[j].posicao_bandido.coordenadax + desloc.coordenadax == rochas[i].coordenadax) && bandido[j].posicao_bandido.coordenaday + desloc.coordenaday == rochas[i].coordenaday)
             {
-
                 colidiu = 1;
-
             }
         }
-
-
-
     }
 
     return colidiu;
@@ -693,7 +703,7 @@ int testacaptura(JOGADOR xerife, BANDIDO *bandido, int *bandidos_na_cadeia)
         return (*bandido).na_cadeia;
     }
 
-    else USA UM FOR NO LAÇO PRINCIPAL E REFAZ A FUNCAO PARA PEGAR AS COORDENADAS
+    else USA UM FOR NO INICIO DA FUNCAO
     {
         desenhabandido((*bandido).posicao_bandido.coordenadax, (*bandido).posicao_bandido.coordenaday);
         (*bandido).na_cadeia = 0;
