@@ -60,22 +60,44 @@ typedef struct jogo
 
 // ----------------------------- CHAMADA DOS SUBPROGRAMAS -----------------------
 
+// --------------- MENU --------------------------------------
+
+void desenhamenu_ajuda();
+void desenhamenu();
+
+// -------------- CENÁRIO ------------------------------------
+
 void desenhacenario();
 void desenhajogador(JOGADOR xerife);
 void desenhabandido (BANDIDO bandido[], int num_bandidos);
 void desenharochas(COORDENADA rochas[], int num_rochas);
 void resetacor();
 void apagaelemento(int x, int y);
-void movimentajogador(JOGADOR *xerife, COORDENADA desloc);
 void desenhainfotempo(clock_t clock_inicial);
-void desenhaespeciais(ESPECIAL especial[]);
 void desenhainfosjogador(JOGADOR xerife, int bandidosnacadeia, int mododejogo);
-void desenhamenu();
-int salvajogo(JOGO jogo);
-int carregajogo(JOGO *jogo, char nome_jogador[]);
+
+// ---------------------- JOGADOR ------------------------------
+
+void movimentajogador(JOGADOR *xerife, COORDENADA desloc);
 int testacolisaojogador(JOGADOR xerife, COORDENADA desloc, COORDENADA rochas[], int max_rochas);
+
+
+
+// -------------------- BANDIDOS ------------------------------
+
+void movimentaumbandido(BANDIDO *bandido, COORDENADA desloc, int direcao);
+void movimentabandidos(BANDIDO bandido[], COORDENADA desloc, COORDENADA rochas[], int numrochas, int numbandidos);
+int testacolisaobandido(BANDIDO bandido[], COORDENADA desloc, COORDENADA rochas[], int max_rochas, int max_bandidos);
+
+// --------------------- FUNCOES DE ARQUIVO -----------------------------
+
 void inicializa_rochas(COORDENADA rochas[], int* num_rochas, int max_rochas);
 void inicializa_bandidos(BANDIDO bandido[], int* num_bandidos, int max_bandidos);
+
+
+int salvajogo(JOGO jogo);
+int carregajogo(JOGO *jogo, char nome_jogador[]);
+
 
 // ------------------------------ FUNCAO PRINCIPAL DO JOGO ----------------------
 
@@ -111,12 +133,11 @@ int main()
 
     while (opcao < 1 || opcao > 6)
     {
-        printf("\n\n Insira sua opcao e vamos comecar: ");
         scanf("%d", &opcao);
     }
 
 
-    switch(opcao) // A FAZER
+    switch(opcao)
     {
     case 1:
     {
@@ -162,25 +183,43 @@ int main()
 
     case 3:
     {
-
+        clrscr();
     }
     break;
 
     case 4:
     {
+        clrscr();
+        clrscr();
+        desenhamenu_ajuda();
+        scanf("%d", &opcao);
+        if (opcao == 7 )
+        {
+            clrscr();
+            clrscr();
+            desenhamenu();
+
+            while (opcao < 1 || opcao > 6)
+            {
+                scanf("%d", &opcao);
+            }
+
+            //inicia jogo()
+        }
 
     }
     break;
 
     case 5:
     {
-
+        clrscr();
     }
     break;
 
     case 6:
     {
-
+        printf("\n\nEspero voce em breve para deter a corrupcao! Ate logo!\n\n");
+        parar = 1;
     }
     break;
 
@@ -198,6 +237,8 @@ int main()
         desenhainfotempo(clock_inicial);
         desloc.coordenadax = 0;
         desloc.coordenaday = 0;
+
+        movimentabandidos(bandidos, desloc, rochas, maxrochas, maxbandidos);
 
         if (GetKeyState (VK_RIGHT) & 0x80) // Seta para direita pressionada
         {
@@ -260,9 +301,6 @@ int main()
 
                     movimentajogador(&xerife, desloc);
                 }
-
-
-
             }
 
         }
@@ -383,15 +421,30 @@ void desenhacenario()
 
 // ----------------------------------------------------------------------------------------
 
-void desenhamenu() // A FAZER
+void desenhamenu()
 {
-    printf("Bandit Hunter \n\n");
+    printf("------------------ Bandit Hunter (Versao Beta 2.003.2) ------------------\n\n");
     printf("1 - Novo Jogo: Facil \n\n");
     printf("2 - Novo Jogo: Dificil \n\n");
     printf("3 - Carregar Partida \n\n");
     printf("4 - Ajuda \n\n");
     printf("5 - Ranking \n\n");
     printf("6 - Sair \n\n");
+    printf("\n\n Insira sua opcao, aperte a tecla Enter e vamos comecar: ");
+}
+
+// -----------------------------------------------------------------------------------------
+
+void desenhamenu_ajuda()
+{
+    printf("------------------------ Seja bem-vindo ao jogo Bandit Hunter ------------------------------------- \n\n\n");
+    printf("Voce e um xerife e deseja capturar os bandidos de sua cidade. Se escolher a dificuldade Facil, serao apenas 5 bandidos, a violencia nao se encerrara!\n\n");
+    printf("Porem, se escolher a dificuldade Dificil, tera a oportunidade de prender todos os 10 bandidos que aterrorizam a cidade e acabar com a violencia existente nela, mas haverao mais obstaculos pelo caminho!\n\n");
+    printf("Use as setas do teclado para se movimentar pelo cenario. \n\n");
+    printf("Voce so conseguira capturar um bandido se pular para o mesmo lugar que ele esta e apertar a tecla espaco.\n\n");
+    printf("Nao esqueca que se o cronometro chegar a 0, voce perdeu o jogo e a violencia seguira aterrorizando a cidade!\n\n");
+    printf("Tambem existem 5 especiais espalhados pelo mapa que lhe ajudarao ou atrapalharao na sua busca. Porem, como esta e uma versao beta, esse recurso nao esta disponivel, ficara como surpresa para o lancamento oficial, que ainda nao tem data oficial marcada\n\n");
+    printf("Vamos comecar essa busca? Digite 7 para voltar ao menu ou 8 para sair do jogo!");
 }
 
 // -----------------------------------------------------------------------------------------
@@ -532,10 +585,8 @@ void inicializa_rochas(COORDENADA rochas[], int* num_rochas, int max_rochas)
 
 
 
-
-
-
 // ------------------------------------- BANDIDO ------------------------------------------------------------
+
 void desenhabandido(BANDIDO bandido[], int num_bandidos)
 {
     int i;
@@ -548,12 +599,126 @@ void desenhabandido(BANDIDO bandido[], int num_bandidos)
 
 // -------------------------------------------------------------------------------
 
-void movimentabandido(BANDIDO *bandido[], COORDENADA desloc) // A FAZER
+void desenhaumbandido(COORDENADA coordenada, char caractere)
 {
-
+    gotoxy(coordenada.coordenadax, coordenada.coordenaday);
+    textbackground(RED);
+    printf("%c", caractere);
 }
 
 // -------------------------------------------------------------------------------
+
+void movimentaumbandido(BANDIDO *bandido, COORDENADA desloc, int direcao)
+{
+    switch(direcao)
+    {
+    case 0: //cima
+    {
+        desloc.coordenaday = -1;
+
+        if(bandido->posicao_bandido.coordenaday + desloc.coordenaday > 1)
+        {
+            apagaelemento(bandido->posicao_bandido.coordenadax, bandido->posicao_bandido.coordenaday);
+            bandido->posicao_bandido.coordenaday = bandido->posicao_bandido.coordenaday-1;
+            desenhaumbandido(bandido->posicao_bandido, 'B');
+        }
+
+    }
+    break;
+
+    case 1: //direita
+    {
+        desloc.coordenadax = 1;
+
+        if(bandido->posicao_bandido.coordenadax + desloc.coordenadax< COLUNA)
+        {
+            apagaelemento(bandido->posicao_bandido.coordenadax, bandido->posicao_bandido.coordenaday);
+            bandido->posicao_bandido.coordenadax = bandido->posicao_bandido.coordenadax+1;
+            desenhaumbandido(bandido->posicao_bandido, 'B');
+        }
+
+    }
+    break;
+
+    case 2: //esquerda
+    {
+        if(bandido->posicao_bandido.coordenadax - 1 > 1)
+        {
+            apagaelemento(bandido->posicao_bandido.coordenadax, bandido->posicao_bandido.coordenaday);
+            bandido->posicao_bandido.coordenadax = bandido->posicao_bandido.coordenadax+1;
+            desenhaumbandido(bandido->posicao_bandido, 'B');
+        }
+    }
+    break;
+
+    case 3: //baixo
+    {
+        if(bandido->posicao_bandido.coordenaday + 1 < LINHA)
+        {
+            apagaelemento(bandido->posicao_bandido.coordenadax, bandido->posicao_bandido.coordenaday);
+            bandido->posicao_bandido.coordenaday = bandido->posicao_bandido.coordenaday+1;
+            desenhaumbandido(bandido->posicao_bandido, 'B');
+        }
+
+    }
+    break;
+
+    case 4: //esquerda-cima
+    {
+        if((bandido->posicao_bandido.coordenadax - 1 > 1) && (bandido->posicao_bandido.coordenaday - 1 > 1))
+        {
+            apagaelemento(bandido->posicao_bandido.coordenadax, bandido->posicao_bandido.coordenaday);
+            bandido->posicao_bandido.coordenadax = bandido->posicao_bandido.coordenadax-1;
+            bandido->posicao_bandido.coordenaday = bandido->posicao_bandido.coordenaday-1;
+            desenhaumbandido(bandido->posicao_bandido, 'B');
+        }
+
+    }
+    break;
+
+    case 5: //direita-cima
+    {
+        if((bandido->posicao_bandido.coordenadax + 1< COLUNA) && (bandido->posicao_bandido.coordenaday - 1 > 1))
+        {
+            apagaelemento(bandido->posicao_bandido.coordenadax, bandido->posicao_bandido.coordenaday);
+            bandido->posicao_bandido.coordenadax = bandido->posicao_bandido.coordenadax+1;
+            bandido->posicao_bandido.coordenaday = bandido->posicao_bandido.coordenaday-1;
+            desenhaumbandido(bandido->posicao_bandido, 'B');
+        }
+
+    }
+    break;
+
+    case 6: //esquerda-baixo
+    {
+        if((bandido->posicao_bandido.coordenadax - 1 > 1) && (bandido->posicao_bandido.coordenaday + 1 < LINHA))
+        {
+            apagaelemento(bandido->posicao_bandido.coordenadax, bandido->posicao_bandido.coordenaday);
+            bandido->posicao_bandido.coordenadax = bandido->posicao_bandido.coordenadax-1;
+            bandido->posicao_bandido.coordenaday = bandido->posicao_bandido.coordenaday+1;
+            desenhaumbandido(bandido->posicao_bandido, 'B');
+        }
+
+    }
+    break;
+
+    case 7: //direita-baixo
+    {
+        if((bandido->posicao_bandido.coordenadax + 1 < COLUNA) && (bandido->posicao_bandido.coordenaday + 1 < LINHA))
+        {
+            apagaelemento(bandido->posicao_bandido.coordenadax, bandido->posicao_bandido.coordenaday);
+            bandido->posicao_bandido.coordenadax = bandido->posicao_bandido.coordenadax+1;
+            bandido->posicao_bandido.coordenaday = bandido->posicao_bandido.coordenaday+1;
+            desenhaumbandido(bandido->posicao_bandido, 'B');
+        }
+
+    }
+    break;
+
+    }
+}
+
+// --------------------------------------------------------------------------------------
 
 void inicializa_bandidos(BANDIDO bandido[], int* num_bandidos, int max_bandidos)
 {
@@ -583,19 +748,21 @@ void inicializa_bandidos(BANDIDO bandido[], int* num_bandidos, int max_bandidos)
     *(num_bandidos) = contador;
 }
 
+// ---------------------------------------------------------------------------------
+
 int testacolisaobandido(BANDIDO bandido[], COORDENADA desloc, COORDENADA rochas[], int max_rochas, int max_bandidos)
 {
     int i;
     int colidiu = 0;
     int j;
 
-    for (i = 0; i < max_rochas; i++)
+    for (i = 0; i < max_bandidos; i++)
     {
-        for(j = 0; j < max_bandidos; j++)
+        for(j = 0; j < max_rochas; j++)
         {
 
 
-            if ((bandido[j].posicao_bandido.coordenadax + desloc.coordenadax == rochas[i].coordenadax) && bandido[j].posicao_bandido.coordenaday + desloc.coordenaday == rochas[i].coordenaday)
+            if ((bandido[i].posicao_bandido.coordenadax + desloc.coordenadax == rochas[j].coordenadax) && bandido[i].posicao_bandido.coordenaday + desloc.coordenaday == rochas[j].coordenaday)
             {
                 colidiu = 1;
             }
@@ -605,38 +772,26 @@ int testacolisaobandido(BANDIDO bandido[], COORDENADA desloc, COORDENADA rochas[
     return colidiu;
 }
 
-// TESTA COLISÃO COM ESPECIAIS
+// ----------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-// ---------------------------------------- ESPECIAIS ------------------------------------------------------- DÚVIDA
-/*
-void desenhaespeciais(ESPECIAL especial[], int max_especiais)
+void movimentabandidos(BANDIDO bandido[], COORDENADA desloc, COORDENADA rochas[], int numrochas, int numbandidos)
 {
-    int i;
-    for (i = 0; i < max_especiais; i++)
-    {
-        textbackground(BLUE);
-        putchxy(especial[i].posicao_especial.coordenadax, especial[i].posicao_especial.coordenaday, 'E');
-    }
+    int i, direcao;
+
+    srand((unsigned)time(NULL));
+
+
+
+        for(i = 0; i < numbandidos; i++)
+        {
+
+            direcao = (rand() % 8);
+            //if(!testacolisaobandido(&bandido[i], desloc, rochas, numbandidos, numrochas))
+            movimentaumbandido(&bandido[i], desloc, direcao);
+        }
+
+
 }
-
-*/
-// FUNÇÃO ESPECIAL 1
-
-// ---------------------------------------------------------------------------------------------
-
-// FUNCÃO ESPECIAL 2
-
-// ---------------------------------------------------------------------------------------------
-
-// FUNCAO ESPECIAL 3
-
-// -------------------------------------------------------------------------------------
-
-
 
 
 
@@ -680,10 +835,6 @@ int testaproximidade(COORDENADA coordA, COORDENADA coordB)
 
 // ------------------------------------------------------------------------------------------------------
 
-void alteravelocidade(JOGADOR *xerife, int aceleracao)
-{
-    (*xerife).velocidade += aceleracao;
-}
 
 
 
@@ -711,3 +862,6 @@ int testacaptura(JOGADOR xerife, BANDIDO *bandido, int *bandidos_na_cadeia)
     }
 }
 */
+
+
+
